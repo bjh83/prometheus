@@ -28,7 +28,5 @@ namespace exec_cycle {
             uint32_t program_counter_;
             unique_ptr<Fetch> fetch_stage_;
     };
-
-    static Controller controller;
 }
 #endif // CONTROLLER_H

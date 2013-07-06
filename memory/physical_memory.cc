@@ -1,4 +1,5 @@
 #include "physical_memory.h"
+#include "prometheus/utils/utils.h"
 
 namespace memory {
     PhysicalMemory::~PhysicalMemory() {
@@ -7,6 +8,25 @@ namespace memory {
         delete SFR;
         delete BootFlash;
         delete DeviceConfigRegs;
+    }
+
+    bool PhysicalMemory::IsValid(uint32_t address) {
+        if(address <= kRAMEnd) {
+            return true;
+        }
+        if(address >= kProgramFlashStart && address <= kProgramFlashEnd) {
+            return true;
+        }
+        if(address >= kSFRStart && address <= kSFREnd) {
+            return true;
+        }
+        if(address >= kBootFlashStart && address <= kBootFlashEnd) {
+            return true;
+        }
+        if(address >= kDeviceConfigRegsStart && address <= kBootFlashEnd) {
+            return true;
+        }
+        return false;
     }
 
     uint8_t PhysicalMemory::get(uint32_t address) const {
@@ -25,8 +45,8 @@ namespace memory {
         if(address >= kDeviceConfigRegsStart && address <= kBootFlashEnd) {
             return DeviceConfigRegs[address];
         }
-        // ERROR
-        return 0;
+        utils::FatalError("Invalid address");
+        return 0; // Unreachable
     }
 
     void PhysicalMemory::set(uint32_t address, uint8_t value) {
@@ -50,6 +70,6 @@ namespace memory {
             DeviceConfigRegs[address] = value;
             return;
         }
-        // ERROR
+        utils::FatalError("Invalid address");
     }
 } // namespace memory

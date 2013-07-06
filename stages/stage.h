@@ -15,26 +15,31 @@ namespace exec_cycle {
 
     class Stage {
         public:
+            explicit Stage(Controller& controller) : controller_(controller) {}
             virtual void Input(unique_ptr<Data> data) = 0;
             void Connect(Stage* stage);
         protected:
-            void Output(Data* data) { next_stage->Input(unique_ptr<Data>(data)); };
+            void Output(Data* data) { next_stage->Input(unique_ptr<Data>(data)); }
+            Controller& controller_;
         private:
             std::unique_ptr<Stage> next_stage;
     };
 
     class Fetch : public Stage {
         public:
+            explicit Fetch(Controller& controller) : Stage(controller) {}
             virtual void Input(unique_ptr<Data> data);
     };
 
     class Decode : public Stage {
         public:
+            explicit Decode(Controller& controller) : Stage(controller) {}
             virtual void Input(unique_ptr<Data> data);
     };
 
     class Execute : public Stage {
         public:
+            explicit Execute(Controller& controller) : Stage(controller) {}
             virtual void Input(unique_ptr<Data> data);
         private:
             void Execute_R(unique_ptr<Data> data);
@@ -44,16 +49,19 @@ namespace exec_cycle {
 
     class MemRead : public Stage {
         public:
+            explicit MemRead(Controller& controller) : Stage(controller) {}
             virtual void Input(unique_ptr<Data> data);
     };
 
     class MemWrite : public Stage {
         public:
+            explicit MemWrite(Controller& controller) : Stage(controller) {}
             virtual void Input(unique_ptr<Data> data);
     };
 
     class WriteBack : public Stage {
         public:
+            explicit WriteBack(Controller& controller) : Stage(controller) {}
             virtual void Input(unique_ptr<Data> data);
     };
 } // namespace exec_cycle

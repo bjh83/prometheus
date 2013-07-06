@@ -8,6 +8,7 @@ namespace memory {
         public:
             PhysicalMemory() {}
             ~PhysicalMemory();
+            static bool IsValid(uint32_t address);
             uint8_t get(uint32_t address) const;
             void set(uint32_t address, uint8_t value);
 

@@ -1,6 +1,20 @@
 #include "virtual_memory.h"
+#include "prometheus/utils/utils.h"
 
 namespace memory {
+
+    bool VirtualMemory::IsValid(uint32_t address) {
+        if(address <= kKSEG0Start && address >= kKSEG0End && 
+                ((address - kKSEG0Start) < PhysicalMemory::kSFRStart || 
+                (address - kKSEG0Start) > PhysicalMemory::kSFREnd)) {
+            return PhysicalMemory::IsValid(address - kKSEG0Start);
+        }
+        if(address <= kKSEG1Start && address >= kKSEG1End) {
+            return PhysicalMemory::IsValid(address - kKSEG1Start);
+        }
+        return false;
+    }
+
     uint8_t VirtualMemory::get_uint8(uint32_t address) const {
         if(address <= kKSEG0Start && address >= kKSEG0End && 
                 ((address - kKSEG0Start) < PhysicalMemory::kSFRStart || 
@@ -10,8 +24,8 @@ namespace memory {
         if(address <= kKSEG1Start && address >= kKSEG1End) {
             return memory_.get(address - kKSEG1Start);
         }
-        // ERROR
-        return 0;
+        utils::FatalError("Invalid Address");
+        return 0; // Unreachable
     }
 
     uint32_t VirtualMemory::get_uint32(uint32_t address) const {
@@ -32,7 +46,7 @@ namespace memory {
         if(address <= kKSEG1Start && address >= kKSEG1End) {
             memory_.set(address - kKSEG1Start, value);
         }
-        // ERROR
+        utils::FatalError("Invalid Address");
     }
 
     void VirtualMemory::set(uint32_t address, uint32_t value) {

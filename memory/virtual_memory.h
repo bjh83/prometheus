@@ -9,6 +9,7 @@ namespace memory {
         public:
             VirtualMemory() {}
             ~VirtualMemory() {}
+            static bool IsValid(uint32_t address);
             uint8_t get_uint8(uint32_t address) const;
             uint32_t get_uint32(uint32_t address) const;
             void set(uint32_t address, uint8_t value);
