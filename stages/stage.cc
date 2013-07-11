@@ -26,7 +26,7 @@ namespace exec_cycle {
 
     void Fetch::Input(unique_ptr<Data> data) { // data is null so do not do anything with it
         if(data) {
-            uint32_t instruction = controller.memory().get_uint32(controller.program_counter());
+            uint32_t instruction = controller_.memory().get_uint32(controller_.program_counter());
             Output(new Data(instruction));
         } else {
             utils::FatalError("Fetch should only be given null data");
@@ -71,7 +71,7 @@ namespace exec_cycle {
                 Output(data.release());
                 break;
             default:
-                controller.Interrupt(interrupts::UndefinedInstruction(data->raw_instruction));
+                controller_.Interrupt(interrupts::UndefinedInstruction(data->raw_instruction));
                 break;
         }
     }
@@ -91,7 +91,7 @@ namespace exec_cycle {
         const R_Instruction* instruction = static_cast<R_Instruction*>(data->decoded_instruction.get());
         Register& rs = registers::GetRegister(instruction->left());
         Register& rt = registers::GetRegister(instruction->right());
-        data->next_address = controller.program_counter() + 4;
+        data->next_address = controller_.program_counter() + 4;
         switch(instruction->func()) {
             case 0x00: //sll
                 data->arithmetic_result_front = rt.get() << instruction->shift();
@@ -126,10 +126,10 @@ namespace exec_cycle {
                 Output(data.release());
                 return;
             case 0x0c: //syscall
-                controller.Interrupt(interrupts::SyscallException());
+                controller_.Interrupt(interrupts::SyscallException());
                 return;
             case 0x0d: //break
-                controller.Interrupt(interrupts::BreakException());
+                controller_.Interrupt(interrupts::BreakException());
                 return;
             case 0x10: //mfhi
                 Output(data.release());
@@ -173,7 +173,7 @@ namespace exec_cycle {
                 int32_t result = left + right;
                 data->arithmetic_result_front = static_cast<uint32_t>(result);
                 if((left < 0 && right < 0 && result > 0) || (left > 0 && right > 0 && result < 0)) {
-                    controller.Interrupt(interrupts::ArithmeticOverflowException());
+                    controller_.Interrupt(interrupts::ArithmeticOverflowException());
                 } else {
                     Output(data.release());
                 }
@@ -188,7 +188,7 @@ namespace exec_cycle {
                 int32_t result = left - right;
                 data->arithmetic_result_front = static_cast<uint32_t>(result);
                 if((left < 0 && right > 0 && result > 0) || (left > 0 && right < 0 && result < 0)) {
-                    controller.Interrupt(interrupts::ArithmeticOverflowException());
+                    controller_.Interrupt(interrupts::ArithmeticOverflowException());
                 } else {
                     Output(data.release());
                 }
@@ -222,7 +222,7 @@ namespace exec_cycle {
                 Output(data.release());
                 return;
             default:
-                controller.Interrupt(interrupts::UndefinedInstruction(data->raw_instruction));
+                controller_.Interrupt(interrupts::UndefinedInstruction(data->raw_instruction));
                 return;
         }
     }
