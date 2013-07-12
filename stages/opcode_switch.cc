@@ -2,7 +2,12 @@
 #include "interrupts/exceptions.h"
 
 namespace exec_cycle {
-    void OpcodeSwitch_R_InstructionBase::Switch(unique_ptr<Data> data) {
+    void OpcodeSwitchBase::Switch(unique_ptr<Data> data) {
+        Initialize(*data.get());
+        InternalSwitch(unique_ptr<Data>(data.release()));
+    }
+
+    void OpcodeSwitch_R_InstructionBase::InternalSwitch(unique_ptr<Data> data) {
         const R_Instruction* instruction = static_cast<R_Instruction*>(data->decoded_instruction.get());
         switch(instruction->func()) {
             case 0x00: //sll
@@ -95,7 +100,7 @@ namespace exec_cycle {
         }
     }
 
-    void OpcodeSwitch_I_InstructionBase::Switch(unique_ptr<Data> data) {
+    void OpcodeSwitch_I_InstructionBase::InternalSwitch(unique_ptr<Data> data) {
         const I_Instruction* instruction = static_cast<I_Instruction*>(data->decoded_instruction.get());
         switch(instruction->opcode()) {
             case 0x01: //bltz
@@ -181,7 +186,7 @@ namespace exec_cycle {
         }
     }
 
-    void OpcodeSwitch_J_InstructionBase::Switch(unique_ptr<Data> data) {
+    void OpcodeSwitch_J_InstructionBase::InternalSwitch(unique_ptr<Data> data) {
         const J_Instruction* instruction = static_cast<J_Instruction*>(data->decoded_instruction.get());
         switch(instruction->opcode()) {
             case 0x02: //j

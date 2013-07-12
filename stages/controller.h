@@ -17,7 +17,7 @@ namespace exec_cycle {
         public:
             Controller();
             void Start();
-            void Interrupt(interrupts::Exception exception);
+            void Interrupt(interrupts::Exception& exception);
             const VirtualMemory& memory() const { return memory_; }
             VirtualMemory& mutable_memory() { return memory_; }
             const uint32_t& program_counter() const { return program_counter_; }

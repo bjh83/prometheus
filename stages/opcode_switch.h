@@ -4,23 +4,24 @@
 #include <cstdint>
 #include <memory>
 #include "data.h"
-#include "controller.h"
+#include "stage.h"
 
 namespace exec_cycle {
     using std::unique_ptr;
 
     class OpcodeSwitchBase {
         public:
-            OpcodeSwitchBase(Controller& controller) : controller_(controller) {}
-            virtual void Switch(unique_ptr<Data> data) = 0;
+            OpcodeSwitchBase(Stage& stage) : stage_(stage) {}
+            virtual void Switch(unique_ptr<Data> data);
         protected:
-            Controller& controller_;
+            virtual void InternalSwitch(unique_ptr<Data> data) = 0;
+            virtual void Initialize(Data& data) = 0;
+            Stage& stage_;
     };
 
     class OpcodeSwitch_R_InstructionBase : public OpcodeSwitchBase {
-        public:
-            virtual void Switch(unique_ptr<Data> data);
         protected:
+            virtual void InternalSwitch(unique_ptr<Data> data);
             virtual void Add(unique_ptr<Data> data) = 0;
             virtual void Addu(unique_ptr<Data> data) = 0;
             virtual void And(unique_ptr<Data> data) = 0;
@@ -52,9 +53,8 @@ namespace exec_cycle {
     };
 
     class OpcodeSwitch_I_InstructionBase : public OpcodeSwitchBase {
-        public:
-            virtual void Switch(unique_ptr<Data> data);
         protected:
+            virtual void InternalSwitch(unique_ptr<Data> data) = 0;
             virtual void Addi(unique_ptr<Data> data) = 0;
             virtual void Addiu(unique_ptr<Data> data) = 0;
             virtual void Andi(unique_ptr<Data> data) = 0;
@@ -82,9 +82,8 @@ namespace exec_cycle {
     };
 
     class OpcodeSwitch_J_InstructionBase : public OpcodeSwitchBase {
-        public:
-            virtual void Switch(unique_ptr<Data> data);
         protected:
+            virtual void InternalSwitch(unique_ptr<Data> data) = 0;
             virtual void J(unique_ptr<Data> data) = 0;
             virtual void Jal(unique_ptr<Data> data) = 0;
     };
