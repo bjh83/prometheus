@@ -11,9 +11,9 @@ namespace exec_cycle {
 
     class OpcodeSwitchBase {
         public:
-            OpcodeSwitchBase(Stage& stage) : stage_(stage) {}
             virtual void Switch(unique_ptr<Data> data);
         protected:
+            OpcodeSwitchBase(Stage& stage) : stage_(stage) {}
             virtual void InternalSwitch(unique_ptr<Data> data) = 0;
             virtual void Initialize(Data& data) = 0;
             Stage& stage_;
@@ -21,6 +21,7 @@ namespace exec_cycle {
 
     class OpcodeSwitch_R_InstructionBase : public OpcodeSwitchBase {
         protected:
+            OpcodeSwitch_R_InstructionBase(Stage& stage) : OpcodeSwitchBase(stage) {}
             virtual void InternalSwitch(unique_ptr<Data> data);
             virtual void Add(unique_ptr<Data> data) = 0;
             virtual void Addu(unique_ptr<Data> data) = 0;
@@ -54,6 +55,7 @@ namespace exec_cycle {
 
     class OpcodeSwitch_I_InstructionBase : public OpcodeSwitchBase {
         protected:
+            OpcodeSwitch_I_InstructionBase(Stage& stage) : OpcodeSwitchBase(stage) {}
             virtual void InternalSwitch(unique_ptr<Data> data) = 0;
             virtual void Addi(unique_ptr<Data> data) = 0;
             virtual void Addiu(unique_ptr<Data> data) = 0;
@@ -83,6 +85,7 @@ namespace exec_cycle {
 
     class OpcodeSwitch_J_InstructionBase : public OpcodeSwitchBase {
         protected:
+            OpcodeSwitch_J_InstructionBase(Stage& stage) : OpcodeSwitchBase(stage) {}
             virtual void InternalSwitch(unique_ptr<Data> data) = 0;
             virtual void J(unique_ptr<Data> data) = 0;
             virtual void Jal(unique_ptr<Data> data) = 0;

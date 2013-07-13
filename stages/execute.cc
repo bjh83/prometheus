@@ -19,6 +19,9 @@ namespace exec_cycle {
     } // namespace
 
     class Execute::Execute_R_OpcodeSwitch : public OpcodeSwitch_R_InstructionBase {
+        public:
+            Execute_R_OpcodeSwitch(Stage& stage) : OpcodeSwitch_R_InstructionBase(stage) {}
+
         protected:
             virtual void Initialize(Data& data) {
                 instruction = static_cast<R_Instruction*>(data.decoded_instruction.get());
@@ -184,6 +187,8 @@ namespace exec_cycle {
     };
 
     class Execute::Execute_I_OpcodeSwitch : public OpcodeSwitch_I_InstructionBase {
+        public:
+            Execute_I_OpcodeSwitch(Stage& stage) : OpcodeSwitch_I_InstructionBase(stage) {}
         protected:
             virtual void Initialize(Data& data) {
                 instruction = static_cast<I_Instruction*>(data.decoded_instruction.get());
@@ -362,6 +367,9 @@ namespace exec_cycle {
     };
 
     class Execute::Execute_J_OpcodeSwitch : public OpcodeSwitch_J_InstructionBase {
+        public:
+            Execute_J_OpcodeSwitch(Stage& stage) : OpcodeSwitch_J_InstructionBase(stage) {}
+
         protected:
             virtual void Initialize(Data& data) {
                 const J_Instruction* instruction = static_cast<J_Instruction*>(data.decoded_instruction.get());
@@ -382,4 +390,18 @@ namespace exec_cycle {
             uint32_t address;
     };
 
+    Execute::Execute(Controller& controller) : Stage(controller), r_switch_(new Execute_R_OpcodeSwitch(*this)),
+        i_switch_(new Execute_I_OpcodeSwitch(*this)), j_switch_(new Execute_J_OpcodeSwitch(*this)) {}
+
+    void Execute::Input(unique_ptr<Data> data) {
+        if(data->decoded_instruction->is_R_Instruction()) {
+            r_switch_->Switch(unique_ptr<Data>(data.release()));
+        } else if(data->decoded_instruction->is_I_Instruction()) {
+            i_switch_->Switch(unique_ptr<Data>(data.release()));
+        } else if(data->decoded_instruction->is_J_Instruction()) {
+            j_switch_->Switch(unique_ptr<Data>(data.release()));
+        } else {
+            // ERROR
+        }
+    }
 } // namespace exec_cycle 

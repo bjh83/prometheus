@@ -40,18 +40,15 @@ namespace exec_cycle {
 
     class Execute : public Stage {
         public:
-            explicit Execute(Controller& controller) : Stage(controller) {}
+            explicit Execute(Controller& controller);
             virtual void Input(unique_ptr<Data> data);
         private:
-            void Execute_R(unique_ptr<Data> data);
-            void Execute_I(unique_ptr<Data> data);
-            void Execute_J(unique_ptr<Data> data);
-
             class Execute_R_OpcodeSwitch;
-
             class Execute_I_OpcodeSwitch;
-
             class Execute_J_OpcodeSwitch;
+            unique_ptr<OpcodeSwitch_R_InstructionBase> r_switch_;
+            unique_ptr<OpcodeSwitch_I_InstructionBase> i_switch_;
+            unique_ptr<OpcodeSwitch_J_InstructionBase> j_switch_;
     };
 
     class MemRead : public Stage {

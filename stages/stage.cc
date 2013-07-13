@@ -1,18 +1,5 @@
 #include "stage.h"
 
-namespace {
-    uint32_t ArithmeticShiftRight(uint32_t to_shift_input, uint32_t shift_ammount_input) {
-        int32_t to_shift = static_cast<int32_t>(to_shift_input);
-        int32_t shift_ammount = static_cast<int32_t>(shift_ammount_input);
-        int32_t result;
-        if (to_shift < 0 && shift_ammount > 0)
-            result = to_shift >> shift_ammount | ~(~0U >> shift_ammount);
-        else
-            result = to_shift >> shift_ammount;
-        return static_cast<uint32_t>(result);
-    }
-}
-
 namespace exec_cycle {
     using namespace std;
 
