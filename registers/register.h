@@ -18,7 +18,7 @@ namespace registers {
     class ZeroRegister : public Register {
         public:
             virtual uint32_t get() const { return 0; }
-            virtual void set(uint32_t new_value) {}
+            virtual void set(uint32_t) {}
     };
 
     enum RegisterName {
