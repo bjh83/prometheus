@@ -89,6 +89,7 @@ namespace registers {
     Register fp;
     Register ra;
 
+    bool IsValid(uint32_t register_number);
     Register& GetRegister(RegisterName name);
     Register& GetRegister(uint32_t register_number);
 

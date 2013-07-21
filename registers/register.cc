@@ -2,6 +2,14 @@
 
 namespace registers {
 
+    bool IsValid(uint32_t register_number) {
+        if(register_number > 31) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     Register& GetRegister(RegisterName name) {
         switch(name) {
             case ZERO:
