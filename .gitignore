@@ -3,3 +3,6 @@
 
 # swap files
 *.swp
+
+# gtest library
+gtest-1.6.0/
