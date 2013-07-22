@@ -25,14 +25,14 @@ namespace exec_cycle {
         protected:
             virtual void Initialize(Data& data) {
                 instruction = static_cast<R_Instruction*>(data.decoded_instruction.get());
-                rs = &GetRegister(instruction->left());
-                rt = &GetRegister(instruction->right());
+                rs = data.rs;
+                rt = data.rt;
                 data.next_address = stage_.controller_.program_counter() + 4;
             }
 
             virtual void Add(unique_ptr<Data> data) {
-                int32_t left = static_cast<int32_t>(rs->get());
-                int32_t right = static_cast<int32_t>(rt->get());
+                int32_t left = static_cast<int32_t>(rs);
+                int32_t right = static_cast<int32_t>(rt);
                 int32_t result = left + right;
                 data->arithmetic_result_front = static_cast<uint32_t>(result);
                 if((left < 0 && right < 0 && result > 0) || (left > 0 && right > 0 && result < 0)) {
@@ -43,37 +43,37 @@ namespace exec_cycle {
             }
 
             virtual void Addu(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rs->get() + rt->get();
+                data->arithmetic_result_front = rs + rt;
                 stage_.Output(data.release());
             }
 
             virtual void And(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rs->get() & rt->get();
+                data->arithmetic_result_front = rs & rt;
             }
 
-            virtual void Break(unique_ptr<Data> data) {
+            virtual void Break(unique_ptr<Data>) {
                 stage_.controller_.Interrupt(interrupts::BreakException());
             }
 
             virtual void Div(unique_ptr<Data> data) {
-                data->arithmetic_result_front = static_cast<uint32_t>(static_cast<int32_t>(rs->get()) / static_cast<int32_t>(rt->get()));
-                data->arithmetic_result_back = static_cast<uint32_t>(static_cast<int32_t>(rs->get()) % static_cast<int32_t>(rt->get()));
+                data->arithmetic_result_front = static_cast<uint32_t>(static_cast<int32_t>(rs) / static_cast<int32_t>(rt));
+                data->arithmetic_result_back = static_cast<uint32_t>(static_cast<int32_t>(rs) % static_cast<int32_t>(rt));
                 stage_.Output(data.release());
             }
 
             virtual void Divu(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rs->get() / rt->get();
-                data->arithmetic_result_back = rs->get() % rt->get();
+                data->arithmetic_result_front = rs / rt;
+                data->arithmetic_result_back = rs % rt;
                 stage_.Output(data.release());
             }
 
             virtual void Jalr(unique_ptr<Data> data) {
-                data->next_address = rs->get();
+                data->next_address = rs;
                 stage_.Output(data.release());
             }
 
             virtual void Jr(unique_ptr<Data> data) {
-                data->next_address = rs->get();
+                data->next_address = rs;
                 stage_.Output(data.release());
             }
 
@@ -94,70 +94,70 @@ namespace exec_cycle {
             }
 
             virtual void Mult(unique_ptr<Data> data) {
-                uint64_t result = static_cast<uint64_t>(static_cast<int64_t>(rs->get()) * static_cast<int64_t>(rt->get()));
+                uint64_t result = static_cast<uint64_t>(static_cast<int64_t>(rs) * static_cast<int64_t>(rt));
                 data->arithmetic_result_front = static_cast<uint32_t>(result >> 32);
                 data->arithmetic_result_back = static_cast<uint32_t>(result);
                 stage_.Output(data.release());
             }
 
             virtual void Multu(unique_ptr<Data> data) {
-                uint64_t result = static_cast<uint64_t>(rs->get()) * static_cast<uint64_t>(rt->get());
+                uint64_t result = static_cast<uint64_t>(rs) * static_cast<uint64_t>(rt);
                 data->arithmetic_result_front = static_cast<uint32_t>(result >> 32);
                 data->arithmetic_result_back = static_cast<uint32_t>(result);
                 stage_.Output(data.release());
             }
 
             virtual void Nor(unique_ptr<Data> data) {
-                data->arithmetic_result_front = ~(rs->get() | rt->get());
+                data->arithmetic_result_front = ~(rs | rt);
             }
 
             virtual void Or(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rs->get() | rt->get();
+                data->arithmetic_result_front = rs | rt;
             }
 
             virtual void Sll(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rt->get() << instruction->shift();
+                data->arithmetic_result_front = rt << instruction->shift();
                 stage_.Output(data.release());
             }
 
             virtual void Sllv(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rt->get() << rs->get();
+                data->arithmetic_result_front = rt << rs;
                 stage_.Output(data.release());
             }
 
             virtual void Slt(unique_ptr<Data> data) {
-                data->arithmetic_result_front = static_cast<int32_t>(rs->get()) < static_cast<int32_t>(rt->get()) ? 1 : 0;
+                data->arithmetic_result_front = static_cast<int32_t>(rs) < static_cast<int32_t>(rt) ? 1 : 0;
                 stage_.Output(data.release());
             }
 
             virtual void Sltu(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rs->get() < rt->get() ? 1 : 0;
+                data->arithmetic_result_front = rs < rt ? 1 : 0;
                 stage_.Output(data.release());
             }
 
             virtual void Sra(unique_ptr<Data> data) {
-                data->arithmetic_result_front = ArithmeticShiftRight(rt->get(), instruction->shift());
+                data->arithmetic_result_front = ArithmeticShiftRight(rt, instruction->shift());
                 stage_.Output(data.release());
             }
 
             virtual void Srav(unique_ptr<Data> data) {
-                data->arithmetic_result_front = ArithmeticShiftRight(rt->get(), rs->get());
+                data->arithmetic_result_front = ArithmeticShiftRight(rt, rs);
                 stage_.Output(data.release());
             }
 
             virtual void Srl(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rt->get() >> instruction->shift();
+                data->arithmetic_result_front = rt >> instruction->shift();
                 stage_.Output(data.release());
             }
 
             virtual void Srlv(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rt->get() >> rs->get();
+                data->arithmetic_result_front = rt >> rs;
                 stage_.Output(data.release());
             }
 
             virtual void Sub(unique_ptr<Data> data) {
-                int32_t left = static_cast<int32_t>(rs->get());
-                int32_t right = static_cast<int32_t>(rt->get());
+                int32_t left = static_cast<int32_t>(rs);
+                int32_t right = static_cast<int32_t>(rt);
                 int32_t result = left - right;
                 data->arithmetic_result_front = static_cast<uint32_t>(result);
                 if((left < 0 && right > 0 && result > 0) || (left > 0 && right < 0 && result < 0)) {
@@ -168,22 +168,22 @@ namespace exec_cycle {
             }
 
             virtual void Subu(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rs->get() - rt->get();
+                data->arithmetic_result_front = rs - rt;
                 stage_.Output(data.release());
             }
 
-            virtual void Syscall(unique_ptr<Data> data) {
+            virtual void Syscall(unique_ptr<Data>) {
                 stage_.controller_.Interrupt(interrupts::SyscallException());
             }
 
             virtual void Xor(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rs->get() ^ rt->get();
+                data->arithmetic_result_front = rs ^ rt;
             }
 
         private:
             const R_Instruction* instruction;
-            Register* rs;
-            Register* rt;
+            uint32_t rs;
+            uint32_t rt;
     };
 
     class Execute::Execute_I_OpcodeSwitch : public OpcodeSwitch_I_InstructionBase {
@@ -192,14 +192,14 @@ namespace exec_cycle {
         protected:
             virtual void Initialize(Data& data) {
                 instruction = static_cast<I_Instruction*>(data.decoded_instruction.get());
-                rs = &GetRegister(instruction->source());
-                rt = &GetRegister(instruction->dest());
+                rs = data.rs;
+                rt = data.rt;
                 immed = instruction->immed();
                 data.next_address = stage_.controller_.program_counter() + 4;
             }
 
             virtual void Addi(unique_ptr<Data> data) {
-                int32_t left = static_cast<int32_t>(rs->get());
+                int32_t left = static_cast<int32_t>(rs);
                 int32_t right = static_cast<int32_t>(immed);
                 int32_t result = left + right;
                 data->arithmetic_result_front = static_cast<uint32_t>(result);
@@ -211,17 +211,17 @@ namespace exec_cycle {
             }
 
             virtual void Addiu(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rs->get() + immed;
+                data->arithmetic_result_front = rs + immed;
                 stage_.Output(data.release());
             }
 
             virtual void Andi(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rs->get() & immed;
+                data->arithmetic_result_front = rs & immed;
                 stage_.Output(data.release());
             }
 
             virtual void Beq(unique_ptr<Data> data) {
-                if(rs->get() == rt->get()) {
+                if(rs == rt) {
                     data->arithmetic_result_front = stage_.controller_.program_counter() + immed;
                 } else {
                     // Just go to the next address
@@ -231,7 +231,7 @@ namespace exec_cycle {
             }
 
             virtual void Bgez(unique_ptr<Data> data) {
-                if(static_cast<int32_t>(rs->get()) >= 0) {
+                if(static_cast<int32_t>(rs) >= 0) {
                     data->arithmetic_result_front = stage_.controller_.program_counter() + immed;
                 } else {
                     // Just go to the next address
@@ -241,7 +241,7 @@ namespace exec_cycle {
             }
 
             virtual void Bgtz(unique_ptr<Data> data) {
-                if(static_cast<int32_t>(rs->get()) > 0) {
+                if(static_cast<int32_t>(rs) > 0) {
                     data->arithmetic_result_front = stage_.controller_.program_counter() + immed;
                 } else {
                     // Just go to the next address
@@ -251,7 +251,7 @@ namespace exec_cycle {
             }
 
             virtual void Blez(unique_ptr<Data> data) {
-                if(static_cast<int32_t>(rs->get()) <= 0) {
+                if(static_cast<int32_t>(rs) <= 0) {
                     data->arithmetic_result_front = stage_.controller_.program_counter() + immed;
                 } else {
                     // Just go to the next address
@@ -261,7 +261,7 @@ namespace exec_cycle {
             }
 
             virtual void Bltz(unique_ptr<Data> data) {
-                if(static_cast<int32_t>(rs->get()) < 0) {
+                if(static_cast<int32_t>(rs) < 0) {
                     data->arithmetic_result_front = stage_.controller_.program_counter() + immed;
                 } else {
                     // Just go to the next address
@@ -271,7 +271,7 @@ namespace exec_cycle {
             }
 
             virtual void Bne(unique_ptr<Data> data) {
-                if(rs->get() != rt->get()) {
+                if(rs != rt) {
                     data->arithmetic_result_front = stage_.controller_.program_counter() + immed;
                 } else {
                     // Just go to the next address
@@ -281,22 +281,22 @@ namespace exec_cycle {
             }
 
             virtual void Lb(unique_ptr<Data> data) {
-                data->arithmetic_result_front = immed + rs->get();
+                data->arithmetic_result_front = immed + rs;
                 stage_.Output(data.release());
             }
 
             virtual void Lbu(unique_ptr<Data> data) {
-                data->arithmetic_result_front = immed + rs->get();
+                data->arithmetic_result_front = immed + rs;
                 stage_.Output(data.release());
             }
 
             virtual void Lh(unique_ptr<Data> data) {
-                data->arithmetic_result_front = immed + rs->get();
+                data->arithmetic_result_front = immed + rs;
                 stage_.Output(data.release());
             }
 
             virtual void Lhu(unique_ptr<Data> data) {
-                data->arithmetic_result_front = immed + rs->get();
+                data->arithmetic_result_front = immed + rs;
                 stage_.Output(data.release());
             }
 
@@ -306,63 +306,63 @@ namespace exec_cycle {
             }
 
             virtual void Lw(unique_ptr<Data> data) {
-                data->arithmetic_result_front = immed + rs->get();
+                data->arithmetic_result_front = immed + rs;
                 stage_.Output(data.release());
             }
 
             virtual void Lwc1(unique_ptr<Data> data) {
-                data->arithmetic_result_front = immed + rs->get();
+                data->arithmetic_result_front = immed + rs;
                 stage_.Output(data.release());
             }
 
             virtual void Ori(unique_ptr<Data> data) {
-                data->arithmetic_result_front = immed | rs->get();
+                data->arithmetic_result_front = immed | rs;
                 stage_.Output(data.release());
             }
 
             virtual void Sb(unique_ptr<Data> data) {
-                data->arithmetic_result_front = immed + rs->get();
-                data->arithmetic_result_back = rt->get();
+                data->arithmetic_result_front = immed + rs;
+                data->arithmetic_result_back = rt;
                 stage_.Output(data.release());
             }
 
             virtual void Slti(unique_ptr<Data> data) {
-                data->arithmetic_result_front = static_cast<int32_t>(rs->get()) < static_cast<int32_t>(immed) ? 1 : 0;
+                data->arithmetic_result_front = static_cast<int32_t>(rs) < static_cast<int32_t>(immed) ? 1 : 0;
                 stage_.Output(data.release());
             }
 
             virtual void Sltiu(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rs->get() < immed ? 1 : 0;
+                data->arithmetic_result_front = rs < immed ? 1 : 0;
                 stage_.Output(data.release());
             }
 
             virtual void Sh(unique_ptr<Data> data) {
-                data->arithmetic_result_front = immed + rs->get();
-                data->arithmetic_result_back = rt->get();
+                data->arithmetic_result_front = immed + rs;
+                data->arithmetic_result_back = rt;
                 stage_.Output(data.release());
             }
 
             virtual void Sw(unique_ptr<Data> data) {
-                data->arithmetic_result_front = immed + rs->get();
-                data->arithmetic_result_back = rt->get();
+                data->arithmetic_result_front = immed + rs;
+                data->arithmetic_result_back = rt;
                 stage_.Output(data.release());
             }
 
             virtual void Swc1(unique_ptr<Data> data) {
-                data->arithmetic_result_front = immed + rs->get();
-                data->arithmetic_result_back = rt->get();
+                data->arithmetic_result_front = immed + rs;
+                data->arithmetic_result_back = rt;
                 stage_.Output(data.release());
             }
 
             virtual void Xori(unique_ptr<Data> data) {
-                data->arithmetic_result_front = rs->get() ^ immed;
+                data->arithmetic_result_front = rs ^ immed;
                 stage_.Output(data.release());
             }
 
         private:
             const I_Instruction* instruction;
-            Register* rs;
-            Register* rt;
+            uint32_t rs;
+            uint32_t rt;
             uint32_t immed;
     };
 
@@ -394,14 +394,18 @@ namespace exec_cycle {
         i_switch_(new Execute_I_OpcodeSwitch(*this)), j_switch_(new Execute_J_OpcodeSwitch(*this)) {}
 
     void Execute::Input(unique_ptr<Data> data) {
-        if(data->decoded_instruction->is_R_Instruction()) {
-            r_switch_->Switch(unique_ptr<Data>(data.release()));
-        } else if(data->decoded_instruction->is_I_Instruction()) {
-            i_switch_->Switch(unique_ptr<Data>(data.release()));
-        } else if(data->decoded_instruction->is_J_Instruction()) {
-            j_switch_->Switch(unique_ptr<Data>(data.release()));
-        } else {
-            // ERROR
+        switch(data->decoded_instruction->GetType()) {
+            case DecodedInstruction::R_Type:
+                r_switch_->Switch(data);
+                break;
+            case DecodedInstruction::I_Type:
+                i_switch_->Switch(data);
+                break;
+            case DecodedInstruction::J_Type:
+                j_switch_->Switch(data);
+            case DecodedInstruction::Invalid: // NOT POSSIBLE
+                utils::FatalError("Decode failed to catch Invalid instruction");
+                break;
         }
     }
 } // namespace exec_cycle 
