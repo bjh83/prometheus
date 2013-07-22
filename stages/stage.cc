@@ -21,46 +21,25 @@ namespace exec_cycle {
     }
 
     void Decode::Input(unique_ptr<Data> data) {
-        switch(DecodedInstruction::GetOpcode(data->raw_instruction)) {
-            case 0x00:
-                data->decoded_instruction = unique_ptr<R_Instruction>(new R_Instruction(data->raw_instruction));
-                Output(data.release());
+        data->decoded_instruction = DecodedInstruction::DecodeInstruction(data->raw_instruction);
+        switch(data->decoded_instruction->GetType()) {
+            case DecodedInstruction::R_Type:
+                const R_Instruction* r_instruction = static_cast<R_Instruction*>(data->decoded_instruction.get());
+                data->rs = registers::GetRegister(r_instruction->rs()).get();
+                data->rt = registers::GetRegister(r_instruction->rt()).get();
                 break;
-            case 0x02:
-            case 0x03:
-                data->decoded_instruction = unique_ptr<J_Instruction>(new J_Instruction(data->raw_instruction));
-                Output(data.release());
+            case DecodedInstruction::I_Type:
+                const I_Instruction* i_instruction = static_cast<I_Instruction*>(data->decoded_instruction.get());
+                data->rs = registers::GetRegister(i_instruction->rs()).get();
+                data->rt = registers::GetRegister(i_instruction->rt()).get();
                 break;
-            case 0x01:
-            case 0x04:
-            case 0x05:
-            case 0x06:
-            case 0x07:
-            case 0x08:
-            case 0x09:
-            case 0x0a:
-            case 0x0b:
-            case 0x0c:
-            case 0x0d:
-            case 0x0e:
-            case 0x0f:
-            case 0x20:
-            case 0x21:
-            case 0x23:
-            case 0x24:
-            case 0x25:
-            case 0x28:
-            case 0x29:
-            case 0x2b:
-            case 0x31:
-            case 0x39:
-                data->decoded_instruction = unique_ptr<I_Instruction>(new I_Instruction(data->raw_instruction));
-                Output(data.release());
+            case DecodedInstruction::J_Type:
                 break;
-            default:
+            case DecodedInstruction::Invalid:
                 controller_.Interrupt(interrupts::UndefinedInstruction(data->raw_instruction));
-                break;
+                return;
         }
+        Output(data.release());
     }
 
     void Execute::Input(unique_ptr<Data> data) {
