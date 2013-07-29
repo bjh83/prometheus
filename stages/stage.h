@@ -22,6 +22,9 @@ namespace exec_cycle {
         protected:
             void Output(Data* data) { next_stage->Input(unique_ptr<Data>(data)); }
             Controller& controller_;
+            friend OpcodeSwitch_R_InstructionNoOp;
+            friend OpcodeSwitch_I_InstructionNoOp;
+            friend OpcodeSwitch_J_InstructionNoOp;
         private:
             std::unique_ptr<Stage> next_stage;
     };
@@ -53,41 +56,43 @@ namespace exec_cycle {
 
     class MemRead : public Stage {
         public:
-            explicit MemRead(Controller& controller) : Stage(controller) {}
+            explicit MemRead(Controller& controller);
             virtual void Input(unique_ptr<Data> data);
-
         private:
             class MemRead_R_OpcodeSwitch;
-
             class MemRead_I_OpcodeSwitch;
-
             class MemRead_J_OpcodeSwitch;
+            unique_ptr<OpcodeSwitch_R_InstructionBase> r_switch_;
+            unique_ptr<OpcodeSwitch_I_InstructionBase> i_switch_;
+            unique_ptr<OpcodeSwitch_J_InstructionBase> j_switch_;
     };
 
     class MemWrite : public Stage {
         public:
-            explicit MemWrite(Controller& controller) : Stage(controller) {}
+            explicit MemWrite(Controller& controller);
             virtual void Input(unique_ptr<Data> data);
 
         private:
             class MemWrite_R_OpcodeSwitch;
-
             class MemWrite_I_OpcodeSwitch;
-
             class MemWrite_J_OpcodeSwitch;
+            unique_ptr<OpcodeSwitch_R_InstructionBase> r_switch_;
+            unique_ptr<OpcodeSwitch_I_InstructionBase> i_switch_;
+            unique_ptr<OpcodeSwitch_J_InstructionBase> j_switch_;
     };
 
     class WriteBack : public Stage {
         public:
-            explicit WriteBack(Controller& controller) : Stage(controller) {}
+            explicit WriteBack(Controller& controller);
             virtual void Input(unique_ptr<Data> data);
 
         private:
             class WriteBack_R_OpcodeSwitch;
-
             class WriteBack_I_OpcodeSwitch;
-
             class WriteBack_J_OpcodeSwitch;
+            unique_ptr<OpcodeSwitch_R_InstructionBase> r_switch_;
+            unique_ptr<OpcodeSwitch_I_InstructionBase> i_switch_;
+            unique_ptr<OpcodeSwitch_J_InstructionBase> j_switch_;
     };
 } // namespace exec_cycle
 #endif // STAGE_H
